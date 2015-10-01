@@ -17,8 +17,7 @@
 ### Experments and metrics
 I want to examine:
 - GPU .vs. CPU performance
-- ReLU .vs. tanh performance, reproduce [the graph](img/relu_vs_tanh.jpeg "ReLU .vs. tanh performance") from [Krizhevsky et al.](http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf "ImageNet Classification with Deep Convolutional
-Neural Networks")
+- ReLU .vs. tanh performance, reproduce <a href="img/relu_vs_tanh.jpeg" target="_blank">the graph</a> from <a href="http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf" target="_blank">Krizhevsky et al.</a>
 - measure times
 - present confusion matrix
 - plot error .vs. epoch

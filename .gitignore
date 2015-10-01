@@ -50,3 +50,7 @@ luac.out
 
 # Ignore emacs saved files
 *.*~
+
+#ignore Torch data files
+*.t7
+

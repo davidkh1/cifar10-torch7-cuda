@@ -4,15 +4,17 @@
 ### Requirements
 
 ### Data
+The <a href="http://www.cs.toronto.edu/~kriz/cifar.html" target="_blank">CIFAR-10 dataset</a> consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images.  
+
 
 ### Classifier
 
 ### Code Description
 	1. run_cifar10.lua  - main 
-	2. data.lua - load data, and pre-process
-	3. model.lua - setting up Neural Network architectures, couple of different models
-	4. train.lua - train procedure
-	5. test.lua - test procedure, reporting and plotting
+	2. data.lua - load and normalize data
+	3. model.lua - define Neural Network architecture; define Loss function
+	4. train.lua - train network on training data
+	5. test.lua - test network on test data; reporting and plotting
 
 ### Experments and metrics
 I want to examine:
@@ -22,5 +24,14 @@ I want to examine:
 - present confusion matrix
 - plot error .vs. epoch
 - alter weights of trained NN, and without additional training, plot error=f(weight<sub>i,j</sub>)
+
+###CUDA
+To use GPU's with torch you call 'require "cutorch"' on a CUDA-capable machine. Here's an explanation of the packages needed for using Torch with GPUs:
+
+    cutorch - Torch CUDA Implementation
+    cunn - Torch CUDA Neural Network Implementation
+    cunnx - Experimental CUDA NN implementations
+    cudnn - NVIDIA CuDNN Bindings
+
 
 ### Results

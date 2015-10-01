@@ -1,3 +1,16 @@
+# Ignore all scratch dir.
+scratch/
+
+# Videos dir
+videos/
+
+# Ignore datasets
+datasets/
+
+# Ignore log folders
+log/
+
+
 # Compiled Lua sources
 luac.out
 
@@ -34,8 +47,6 @@ luac.out
 # Executables
 *.exe
 *.out
-*.app
-*.i*86
-*.x86_64
-*.hex
 
+# Ignore emacs saved files
+*.*~

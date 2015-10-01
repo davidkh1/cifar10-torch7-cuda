@@ -21,6 +21,6 @@ I want to examine:
 - measure times
 - present confusion matrix
 - plot error .vs. epoch
-- on trained NN, plot error(weight)
+- alter weights of trained NN, and without additional training, plot error=f(weight<sub>i,j</sub>)
 
 ### Results

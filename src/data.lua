@@ -1,6 +1,6 @@
---[[ Before running the data, go to 'data' directory and download CIFAR-10 dataset 
-   from http://www.cs.toronto.edu/~kriz/cifar.html and converts it to Torch tables.
-   Refer to https://github.com/soumith/cifar.torch
+--[[ 
+   We download CIFAR-10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and 
+   converts it to Torch tables.
    
    It will create two files: cifar10-train.t7, cifar10-test.t7 Each of them is a table of the form:
 
@@ -11,6 +11,12 @@
               label : ByteTensor - size: 50000
       }
 
+   Refer to https://github.com/soumith/cifar.torch for conversion process.
+   
+   ----------------------------------
+   Also, even not in use here, there is a publicly availabele CIFAR-10 in Tortch 7 format:
+   http://torch7.s3-website-us-east-1.amazonaws.com/data/cifar10.t7.tgz
+   
 --]]
 
 require 'torch'
@@ -18,94 +24,14 @@ require 'paths'
 
 cifar10={}
 
-cifar10.path_remote = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
-cifar10.path_dataset = 'datasets/cifar10.t7'
-cifar10.path_trainset = paths.concat(cifar10.path_dataset, 'cifar10-train_32x32.t7')
-cifar10.path_testset = paths.concat(cifar10.path_dataset, 'cifar10-test_32x32.t7')
+cifar10.path_remote_file = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'    --some 163M
+cifar10.path_project_root_dir = '..'   -- we are running from 'src' directory
+cifar10.path_dataset_dir = paths.concat(paths.dirname(cifar10.path_project_root_dir), '../datasets/cifar10_32x32_t7') --local files
+cifar10.path_trainset_file = paths.concat(cifar10.path_dataset_dir, 'cifar10-train.t7')
+cifar10.path_testset_file = paths.concat(cifar10.path_dataset_dir, 'cifar10-test.t7')
+cifar10.path_tar_file = paths.concat(paths.dirname(cifar10.path_dataset_dir), paths.basename(cifar10.path_remote_file))
+cifar10.keep_tar_file_flag = true
 
-function cifar10.download()
-   if not paths.filep(cifar10.path_trainset) or not paths.filep(cifar10.path_testset) then
-      local remote = cifar10.path_remote
-      local tar = paths.basename(remote)
-      os.execute('wget ' .. remote .. '; ' .. 'tar xvf ' .. tar .. '; rm ' .. tar)
-   end
-end
-
-function cifar10.loadTrainSet(maxLoad, geometry)
-   return cifar10.loadDataset(cifar10.path_trainset, maxLoad, geometry)
-end
-
-function mnist.loadTestSet(maxLoad, geometry)
-   return cifar10.loadDataset(cifar10.path_testset, maxLoad, geometry)
-end
-
-function cifar10.loadDataset(fileName, maxLoad)
-   cifar10.download()
-
-   local f = torch.load(fileName, 'ascii')
-   local data = f.data:type(torch.getdefaulttensortype())
-   local labels = f.labels
-
-   local nExample = f.data:size(1)
-   if maxLoad and maxLoad > 0 and maxLoad < nExample then
-      nExample = maxLoad
-      print('<mnist> loading only ' .. nExample .. ' examples')
-   end
-   data = data[{{1,nExample},{},{},{}}]
-   labels = labels[{{1,nExample}}]
-   print('<mnist> done')
-
-   local dataset = {}
-   dataset.data = data
-   dataset.labels = labels
-
-   function dataset:normalize(mean_, std_)
-      local mean = mean or data:view(data:size(1), -1):mean(1)
-      local std = std_ or data:view(data:size(1), -1):std(1, true)
-      for i=1,data:size(1) do
-         data[i]:add(-mean[1][i])
-         if std[1][i] > 0 then
-            tensor:select(2, i):mul(1/std[1][i])
-         end
-      end
-      return mean, std
-   end
-
-   function dataset:normalizeGlobal(mean_, std_)
-      local std = std_ or data:std()
-      local mean = mean_ or data:mean()
-      data:add(-mean)
-      data:mul(1/std)
-      return mean, std
-   end
-
-   function dataset:size()
-      return nExample
-   end
-
-   local labelvector = torch.zeros(10)
-
-   setmetatable(dataset, {__index = function(self, index)
-              local input = self.data[index]
-              local class = self.labels[index]
-              local label = labelvector:zero()
-              label[class] = 1
-              local example = {input, label}
-                                       return example
-   end})
-
-   return dataset
-end
---------------------------------
-
-
-
-
-//another version:
-
-
-os.execute('wget -c http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz')
-os.execute('tar -xvf cifar-10-binary.tar.gz')
 local function convertCifar10BinToTorchTensor(inputFnames, outputFname)
    local nSamples = 0
    for i=1,#inputFnames do
@@ -146,12 +72,49 @@ local function convertCifar10BinToTorchTensor(inputFnames, outputFname)
    torch.save(outputFname, out)
 end
 
-convertCifar10BinToTorchTensor({'cifar-10-batches-bin/data_batch_1.bin',
-                                'cifar-10-batches-bin/data_batch_2.bin',
-                                'cifar-10-batches-bin/data_batch_3.bin',
-                                'cifar-10-batches-bin/data_batch_4.bin',
-                                'cifar-10-batches-bin/data_batch_5.bin'},
-   'cifar10-train.t7')
 
-convertCifar10BinToTorchTensor({'cifar-10-batches-bin/test_batch.bin'},
-   'cifar10-test.t7')
+-- Ensure CIFAR-10 dataset in Torch7 binary format exists on local disk
+-- If required, the dataset will be downloaded
+function cifar10.download()
+   local remote_file = cifar10.path_remote_file
+   local tar_file = cifar10.path_tar_file
+
+   if not paths.filep(cifar10.path_trainset_file) or not paths.filep(cifar10.path_testset_file) then
+      print('No local dataset in Torch7 format.')
+      
+      -- get original dataset to the local disk if missing   
+      if not paths.filep(tar_file) then
+         print('can\'t find local ' .. tar_file .. '. Going to download original ' .. remote_file)  
+         os.execute('wget ' .. remote_file .. ' -P ' .. paths.dirname(tar_file)) -- download to the given directory
+      else
+         print('local CIFAR-10 tar found: ' .. tar_file)   
+      end
+      
+      print('untar the dataset')
+      os.execute('tar xvf ' .. tar_file .. ' -C ' .. paths.dirname(tar_file))  -- untar the dataset
+      
+      if not cifar10.keep_tar_file_flag then
+         print('deleting ' .. tar_file)
+         os.execute('rm -f ' .. tar_file)
+      end
+      
+      -- CIFAR-10 bin files are ready to be converted to Torch tensors
+      data_dir = paths.dirname(cifar10.path_dataset_dir)
+      os.execute('mkdir -p ' .. cifar10.path_dataset_dir)
+      convertCifar10BinToTorchTensor({ paths.concat(data_dir, 'cifar-10-batches-bin/data_batch_1.bin'),
+                                       paths.concat(data_dir, 'cifar-10-batches-bin/data_batch_2.bin'),
+                                       paths.concat(data_dir, 'cifar-10-batches-bin/data_batch_3.bin'),
+                                       paths.concat(data_dir, 'cifar-10-batches-bin/data_batch_4.bin'),
+                                       paths.concat(data_dir, 'cifar-10-batches-bin/data_batch_5.bin')},
+                                       cifar10.path_trainset_file)
+
+      convertCifar10BinToTorchTensor({paths.concat(data_dir, 'cifar-10-batches-bin/test_batch.bin')}, cifar10.path_testset_file)
+   
+      
+   else
+      print('CIFAR-10 dataset in Torch7 binary format exists on local drive')     
+   end
+   
+   
+end
+

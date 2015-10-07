@@ -35,3 +35,7 @@ To use GPU's with torch you call 'require "cutorch"' on a CUDA-capable machine. 
 
 
 ### Results
+
+### Use of AWS 
+In case your machine is lack of CUDA-compatible GPU, immidiate and cheap solution could be AWS. Current price is below 10 cent/hour for decent g2.2xlarge instance.
+Refer for further instructions: https://github.com/soumith/dl-machine

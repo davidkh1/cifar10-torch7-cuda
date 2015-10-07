@@ -32,6 +32,7 @@ cifar10.path_testset_file = paths.concat(cifar10.path_dataset_dir, 'cifar10-test
 cifar10.path_tar_file = paths.concat(paths.dirname(cifar10.path_dataset_dir), paths.basename(cifar10.path_remote_file))
 cifar10.keep_tar_file_flag = true
 
+--  adapted from https://github.com/soumith/cifar.torch
 local function convertCifar10BinToTorchTensor(inputFnames, outputFname)
    local nSamples = 0
    for i=1,#inputFnames do

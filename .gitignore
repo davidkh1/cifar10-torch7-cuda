@@ -6,6 +6,10 @@ videos/
 
 # Ignore datasets
 datasets/
+datasets*/
+
+#ignore Torch data files
+*.t7
 
 # Ignore log folders
 log/
@@ -51,6 +55,9 @@ luac.out
 # Ignore emacs saved files
 *.*~
 
-#ignore Torch data files
-*.t7
+# Eclipse project files
+.buildpath
+.project
+.settings/
+
 

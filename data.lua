@@ -25,8 +25,8 @@ require 'paths'
 cifar10={}
 
 cifar10.path_remote_file = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'    --some 163M
-cifar10.path_project_root_dir = '..'   -- we are running from 'src' directory
-cifar10.path_dataset_dir = paths.concat(paths.dirname(cifar10.path_project_root_dir), '../datasets/cifar10_32x32_t7') --local files
+cifar10.path_project_root_dir = '.'
+cifar10.path_dataset_dir = paths.concat(paths.dirname(cifar10.path_project_root_dir), 'datasets/cifar10_32x32_t7') --local files
 cifar10.path_trainset_file = paths.concat(cifar10.path_dataset_dir, 'cifar10-train.t7')
 cifar10.path_testset_file = paths.concat(cifar10.path_dataset_dir, 'cifar10-test.t7')
 cifar10.path_tar_file = paths.concat(paths.dirname(cifar10.path_dataset_dir), paths.basename(cifar10.path_remote_file))

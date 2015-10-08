@@ -113,7 +113,7 @@ function cifar10.download()
    
       
    else
-      print('CIFAR-10 dataset in Torch7 binary format exists on local drive')     
+      print('CIFAR-10 dataset in Torch7 binary format exists on the local drive')     
    end
    
    
